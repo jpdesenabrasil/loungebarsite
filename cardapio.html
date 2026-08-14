@@ -50,57 +50,17 @@ header{text-align:center;padding:24px 0 12px}.site-logo-img{width:min(250px,62vw
 <h2 class="section-title"><span>DESTAQUES</span> DA CASA</h2>
 <section id="grid" class="grid"></section><div id="empty" class="empty">Nenhum produto encontrado.</div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL="https://wrueyldafgxdjmfytibb.supabase.co",SUPABASE_KEY="sb_publishable_GOJnRw6wmvTwMmOj1VtF2Q_RHBwBOXz";const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const DEFAULT_CATEGORIES=["Baldes Cervejas","Cervejas / Chopp / Vinho","Combos","Espumantes","Sem Álcool","Drinks","Petiscos"];
-const DEFAULT_PRODUCTS=[
- {name:"Balde Heineken",categories:["Baldes Cervejas"],featured:true,desc:"Balde com 10 unidades bem geladas.",price:"R$ 140,00",unit:"Unidade R$ 15,00",icon:"🍺",image:"",available:true},
- {name:"Gin Tropical",categories:["Drinks"],featured:true,desc:"Gin, frutas cítricas e energético.",price:"R$ 32,00",unit:"",icon:"🍹",image:"",available:true},
- {name:"Combo Whisky",categories:["Combos"],featured:false,desc:"Whisky + energético + gelo.",price:"R$ 210,00",unit:"",icon:"🥃",image:"",available:true}
-];
-function getCategories(){try{const x=JSON.parse(localStorage.getItem("club_categories"));return Array.isArray(x)&&x.length?x:DEFAULT_CATEGORIES}catch(e){return DEFAULT_CATEGORIES}}
-function getProducts(){try{
-  const x=JSON.parse(localStorage.getItem("club_products"));
-  if(!Array.isArray(x)||!x.length)return DEFAULT_PRODUCTS;
-  return x.map(p=>({
-    ...p,
-    categories:Array.isArray(p.categories)?p.categories:(p.cat?[p.cat]:[]),
-    featured:!!p.featured,
-    available:p.available!==false
-  }));
-}catch(e){return DEFAULT_PRODUCTS}}
-let activeCat="Mais pedidos";
-function renderCategories(){
-  const cats=["Mais pedidos",...getCategories()];
-  document.getElementById("categories").innerHTML=cats.map(c=>`<button class="cat ${c===activeCat?"active":""}" data-cat="${c}">${c}</button>`).join("");
-  document.querySelectorAll(".cat").forEach(btn=>btn.addEventListener("click",()=>{activeCat=btn.dataset.cat;render()}));
-}
-function render(){
-  const q=document.getElementById("search").value.trim().toLowerCase();
-  const products=getProducts();
-  renderCategories();
-  const filtered=products.filter(p=>{
-    if(p.available===false)return false;
-    const catOk=activeCat==="Mais pedidos"?p.featured:(p.categories||[]).includes(activeCat);
-    const text=(p.name+" "+(p.desc||"")+" "+(p.categories||[]).join(" ")).toLowerCase();
-    return catOk && text.includes(q);
-  });
-  document.getElementById("grid").innerHTML=filtered.map(p=>`
-    <article class="product">
-      <div class="visual">
-        ${p.featured?'<div class="badge">MAIS PEDIDO</div>':""}
-        ${p.image?`<img src="${p.image}" alt="${p.name}">`:`<div class="emoji">${p.icon||"🍾"}</div>`}
-      </div>
-      <div class="content">
-        <h3>${p.name}</h3>
-        <div class="desc">${p.desc||""}</div>
-        <div class="price-row"><div class="price"><small>A PARTIR DE</small><strong>${p.price||""}</strong></div><div class="unit">${p.unit||""}</div></div>
-      </div>
-    </article>`).join("");
-  document.getElementById("empty").style.display=filtered.length?"none":"block";
-}
-document.getElementById("search").addEventListener("input",render);
-async function loadSiteLogo(){const el=document.getElementById("siteLogo");const local=localStorage.getItem("club_site_logo");if(local)el.src=local;try{const req=indexedDB.open("doha_site_db",1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains("assets"))db.createObjectStore("assets")};req.onsuccess=()=>{const db=req.result;const tx=db.transaction("assets","readonly");const get=tx.objectStore("assets").get("site_logo");get.onsuccess=()=>{if(get.result)el.src=get.result}}}catch(e){}}
-loadSiteLogo();
-render();
+const DEFAULT_PRODUCTS=[{name:"Balde Heineken",categories:["Baldes Cervejas"],featured:true,desc:"Balde com 10 unidades bem geladas.",price:"R$ 140,00",unit:"Unidade R$ 15,00",icon:"🍺",image:"",available:true},{name:"Gin Tropical",categories:["Drinks"],featured:true,desc:"Gin, frutas cítricas e energético.",price:"R$ 32,00",unit:"",icon:"🍹",image:"",available:true},{name:"Combo Whisky",categories:["Combos"],featured:false,desc:"Whisky + energético + gelo.",price:"R$ 210,00",unit:"",icon:"🥃",image:"",available:true}];
+let categories=[...DEFAULT_CATEGORIES],products=structuredClone(DEFAULT_PRODUCTS),activeCat='Mais pedidos';
+function esc(v){return String(v||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
+async function setting(key,fallback){try{const {data,error}=await sb.from('site_settings').select('value').eq('key',key).maybeSingle();if(error)throw error;return data?.value??fallback}catch(e){console.warn('Supabase:',e);return fallback}}
+function renderCategories(){const cats=['Mais pedidos',...categories];document.getElementById('categories').innerHTML=cats.map(c=>`<button class="cat ${c===activeCat?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');document.querySelectorAll('.cat').forEach(btn=>btn.addEventListener('click',()=>{activeCat=btn.dataset.cat;render()}))}
+function render(){const q=document.getElementById('search').value.trim().toLowerCase();renderCategories();const filtered=products.filter(p=>{if(p.available===false)return false;const catOk=activeCat==='Mais pedidos'?p.featured:(p.categories||[]).includes(activeCat);const text=(p.name+' '+(p.desc||'')+' '+(p.categories||[]).join(' ')).toLowerCase();return catOk&&text.includes(q)});document.getElementById('grid').innerHTML=filtered.map(p=>`<article class="product"><div class="visual">${p.featured?'<div class="badge">MAIS PEDIDO</div>':''}${p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}">`:`<div class="emoji">${esc(p.icon||'🍾')}</div>`}</div><div class="content"><h3>${esc(p.name)}</h3><div class="desc">${esc(p.desc||'')}</div><div class="price-row"><div class="price"><small>A PARTIR DE</small><strong>${esc(p.price||'')}</strong></div><div class="unit">${esc(p.unit||'')}</div></div></div></article>`).join('');document.getElementById('empty').style.display=filtered.length?'none':'block'}
+async function loadContent(){const [cats,prods,logo]=await Promise.all([setting('categories',DEFAULT_CATEGORIES),setting('products',DEFAULT_PRODUCTS),setting('logo','')]);categories=Array.isArray(cats)&&cats.length?cats:DEFAULT_CATEGORIES;products=(Array.isArray(prods)&&prods.length?prods:DEFAULT_PRODUCTS).map(p=>({...p,categories:Array.isArray(p.categories)?p.categories:(p.cat?[p.cat]:[]),featured:!!p.featured,available:p.available!==false}));if(logo)document.getElementById('siteLogo').src=typeof logo==='string'?logo:logo.url;render()}
+document.getElementById('search').addEventListener('input',render);loadContent();
 </script>
 </body></html>

@@ -48,8 +48,9 @@ input,select,textarea{width:100%;background:#0c0c0c;color:#fff;border:1px solid 
 <div id="loginArea" class="container login-wrap">
   <section class="login">
     <h1 class="gold">Acesso Admin</h1>
-    <p>Senha demo: <b>1234</b></p>
-    <input id="password" type="password" placeholder="Digite a senha">
+    <p>Entre com o usuário administrador cadastrado no Supabase.</p>
+    <input id="email" type="email" placeholder="E-mail do administrador" autocomplete="username">
+    <input id="password" type="password" placeholder="Senha" autocomplete="current-password">
     <div class="toolbar"><button id="loginBtn">ENTRAR</button></div>
   </section>
 </div>
@@ -139,7 +140,13 @@ input,select,textarea{width:100%;background:#0c0c0c;color:#fff;border:1px solid 
 
 <div id="toast" class="toast">Salvo com sucesso!</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL="https://wrueyldafgxdjmfytibb.supabase.co";
+const SUPABASE_KEY="sb_publishable_GOJnRw6wmvTwMmOj1VtF2Q_RHBwBOXz";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const BUCKET="site-images";
+
 const DEFAULT_CATEGORIES=["Baldes Cervejas","Cervejas / Chopp / Vinho","Combos","Espumantes","Sem Álcool","Drinks","Petiscos"];
 const DEFAULT_PRODUCTS=[
  {name:"Balde Heineken",categories:["Baldes Cervejas"],featured:true,desc:"Balde com 10 unidades bem geladas.",price:"R$ 140,00",unit:"Unidade R$ 15,00",icon:"🍺",image:"",available:true},
@@ -150,115 +157,53 @@ const DEFAULT_EVENTS=[
  {title:"RAMON RAMOS / CHURRASCADA / OPEN BAR",date:"16/08/2026 13:00",price:"R$ 25,00",lot:"Lote 2",image:"flyer-2.jpg",link:"#"},
  {title:"RESENHA DE CRENTE / MARCADOS",date:"21/08/2026 18:00",price:"R$ 40,00",lot:"Lote 3",image:"flyer-3.jpg",link:"#"}
 ];
-
-let selectedImage="", editingProductIndex=null, eventImages=["","",""];
-let selectedLogo="";
+let state={categories:[...DEFAULT_CATEGORIES],products:structuredClone(DEFAULT_PRODUCTS),events:structuredClone(DEFAULT_EVENTS),logo:""};
+let selectedImage="", selectedImageFile=null, editingProductIndex=null, eventImages=["","",""], eventImageFiles=[null,null,null], selectedLogoFile=null;
 const $=id=>document.getElementById(id);
 
-function showToast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
-function getCategories(){try{const x=JSON.parse(localStorage.getItem("club_categories"));return Array.isArray(x)&&x.length?x:DEFAULT_CATEGORIES}catch(e){return DEFAULT_CATEGORIES}}
-function saveCategories(v){localStorage.setItem("club_categories",JSON.stringify(v))}
-function getProducts(){try{const x=JSON.parse(localStorage.getItem("club_products"));if(!Array.isArray(x))return DEFAULT_PRODUCTS;return x.map(p=>({...p,categories:Array.isArray(p.categories)?p.categories:(p.cat?[p.cat]:[]),featured:!!p.featured,available:p.available!==false}))}catch(e){return DEFAULT_PRODUCTS}}
-function saveProducts(v){localStorage.setItem("club_products",JSON.stringify(v))}
-function getEvents(){try{const x=JSON.parse(localStorage.getItem("club_events"));return Array.isArray(x)&&x.length?x.slice(0,3).map((e,i)=>({...DEFAULT_EVENTS[i],...e})):DEFAULT_EVENTS}catch(e){return DEFAULT_EVENTS}}
-function saveEvents(v){localStorage.setItem("club_events",JSON.stringify(v.slice(0,3)))}
+function showToast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
+function normalizeProducts(v){return (Array.isArray(v)?v:DEFAULT_PRODUCTS).map(p=>({...p,categories:Array.isArray(p.categories)?p.categories:(p.cat?[p.cat]:[]),featured:!!p.featured,available:p.available!==false}))}
+function getCategories(){return state.categories}
+function getProducts(){return state.products}
+function getEvents(){return state.events}
+async function loadSetting(key,fallback){const {data,error}=await sb.from('site_settings').select('value').eq('key',key).maybeSingle();if(error)throw error;return data?.value ?? fallback}
+async function saveSetting(key,value){const {error}=await sb.from('site_settings').upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});if(error)throw error}
+async function loadAll(){const [categories,products,events,logo]=await Promise.all([loadSetting('categories',DEFAULT_CATEGORIES),loadSetting('products',DEFAULT_PRODUCTS),loadSetting('events',DEFAULT_EVENTS),loadSetting('logo','')]);state.categories=Array.isArray(categories)&&categories.length?categories:[...DEFAULT_CATEGORIES];state.products=normalizeProducts(products);state.events=Array.isArray(events)&&events.length?events.slice(0,3).map((e,i)=>({...DEFAULT_EVENTS[i],...e})):structuredClone(DEFAULT_EVENTS);state.logo=typeof logo==='string'?logo:(logo?.url||'')}
+function safeName(name){return (name||'imagem').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'')||'imagem'}
+async function uploadImage(file,folder){if(!file)return '';const ext=(file.name.split('.').pop()||'jpg').toLowerCase();const path=`${folder}/${Date.now()}-${crypto.randomUUID().slice(0,8)}-${safeName(file.name.replace(/\.[^.]+$/,''))}.${ext}`;const {error}=await sb.storage.from(BUCKET).upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type||undefined});if(error)throw error;const {data}=sb.storage.from(BUCKET).getPublicUrl(path);return data.publicUrl}
 
-function login(){if($("password").value==="1234"){sessionStorage.setItem("doha_admin","1");showAdmin()}else alert("Senha incorreta")}
-function logout(){sessionStorage.removeItem("doha_admin");location.reload()}
-function showAdmin(){$("loginArea").classList.add("hidden");$("adminArea").classList.remove("hidden");renderAll()}
-$("loginBtn").addEventListener("click",login);$("password").addEventListener("keydown",e=>{if(e.key==="Enter")login()});$("logoutBtn").addEventListener("click",logout);
+async function login(){const email=$("email").value.trim(),password=$("password").value;if(!email||!password){alert('Digite seu e-mail e sua senha.');return}$("loginBtn").disabled=true;$("loginBtn").textContent='ENTRANDO...';const {error}=await sb.auth.signInWithPassword({email,password});$("loginBtn").disabled=false;$("loginBtn").textContent='ENTRAR';if(error){alert('Não foi possível entrar. Confira e-mail e senha.');return}localStorage.setItem('doha_admin_email',email);await showAdmin()}
+async function logout(){await sb.auth.signOut();$("adminArea").classList.add("hidden");$("loginArea").classList.remove("hidden")}
+async function showAdmin(){$("loginArea").classList.add("hidden");$("adminArea").classList.remove("hidden");try{await loadAll();renderAll()}catch(e){console.error(e);alert('Entrou, mas não foi possível carregar os dados do Supabase. Confira as políticas.')}}
+$("loginBtn").addEventListener("click",login);$("password").addEventListener("keydown",e=>{if(e.key==="Enter")login()});$("logoutBtn").addEventListener("click",logout);const savedEmail=localStorage.getItem('doha_admin_email');if(savedEmail)$("email").value=savedEmail;
 
-document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".tabpane").forEach(p=>p.classList.add("hidden"));document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));$(btn.dataset.tab).classList.remove("hidden");btn.classList.add("active")}))
-
-function readImage(file,cb){if(!file)return;if(file.size>2.5*1024*1024){alert("Use uma imagem de até 2,5 MB nesta demonstração.");return}const r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(file)}
-$("photo").addEventListener("change",e=>readImage(e.target.files[0],src=>{selectedImage=src;$("preview").src=src;$("preview").style.display="block";$("placeholder").style.display="none"}));
-
+document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".tabpane").forEach(p=>p.classList.add("hidden"));document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));$(btn.dataset.tab).classList.remove("hidden");btn.classList.add("active")}));
+function previewFile(file,img,placeholder){if(!file)return;const u=URL.createObjectURL(file);img.src=u;img.style.display='block';if(placeholder)placeholder.style.display='none'}
+$("photo").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;selectedImageFile=f;selectedImage='';previewFile(f,$("preview"),$("placeholder"))});
 function renderCategoryChecks(selected=[]){$("categoryChecks").innerHTML=getCategories().map((c,i)=>`<div class="check"><input type="checkbox" id="pc${i}" value="${c}" ${selected.includes(c)?"checked":""}><label for="pc${i}">${c}</label></div>`).join("")}
-function clearProductForm(){editingProductIndex=null;selectedImage="";["name","price","description","unit","icon"].forEach(id=>$(id).value="");$("featured").checked=false;$("photo").value="";$("preview").src="";$("preview").style.display="none";$("placeholder").style.display="block";$("productFormTitle").textContent="Adicionar produto";$("saveProductBtn").textContent="ADICIONAR PRODUTO";renderCategoryChecks([])}
+function clearProductForm(){editingProductIndex=null;selectedImage="";selectedImageFile=null;["name","price","description","unit","icon"].forEach(id=>$(id).value="");$("featured").checked=false;$("photo").value="";$("preview").src="";$("preview").style.display="none";$("placeholder").style.display="block";$("productFormTitle").textContent="Adicionar produto";$("saveProductBtn").textContent="ADICIONAR PRODUTO";renderCategoryChecks([])}
 $("clearProductBtn").addEventListener("click",clearProductForm);
-
-function saveProductForm(){
-  const n=$("name").value.trim(), pval=$("price").value.trim(), cats=[...document.querySelectorAll("#categoryChecks input:checked")].map(x=>x.value);
-  if(!n){alert("Digite o nome do produto.");return} if(!pval){alert("Digite o preço do produto.");return} if(!cats.length){alert("Escolha pelo menos uma categoria.");return}
-  const products=getProducts(), existing=editingProductIndex!==null?products[editingProductIndex]:null;
-  const item={name:n,price:pval,desc:$("description").value.trim(),unit:$("unit").value.trim(),icon:$("icon").value.trim()||"🍾",image:selectedImage||(existing?.image||""),categories:cats,featured:$("featured").checked,available:existing?existing.available!==false:true};
-  if(editingProductIndex===null)products.unshift(item);else products[editingProductIndex]=item;
-  try{saveProducts(products)}catch(e){alert("Não foi possível salvar. Tente uma imagem menor.");return}
-  const wasEditing=editingProductIndex!==null;clearProductForm();renderProducts();showToast(wasEditing?"Produto alterado com sucesso!":"Produto adicionado com sucesso!")
-}
+async function saveProductForm(){const n=$("name").value.trim(),pval=$("price").value.trim(),cats=[...document.querySelectorAll("#categoryChecks input:checked")].map(x=>x.value);if(!n){alert("Digite o nome do produto.");return}if(!pval){alert("Digite o preço do produto.");return}if(!cats.length){alert("Escolha pelo menos uma categoria.");return}const btn=$("saveProductBtn");btn.disabled=true;btn.textContent='SALVANDO...';try{const products=[...getProducts()],existing=editingProductIndex!==null?products[editingProductIndex]:null;let image=selectedImage||(existing?.image||'');if(selectedImageFile)image=await uploadImage(selectedImageFile,'products');const item={name:n,price:pval,desc:$("description").value.trim(),unit:$("unit").value.trim(),icon:$("icon").value.trim()||"🍾",image,categories:cats,featured:$("featured").checked,available:existing?existing.available!==false:true};const wasEditing=editingProductIndex!==null;if(editingProductIndex===null)products.unshift(item);else products[editingProductIndex]=item;await saveSetting('products',products);state.products=products;clearProductForm();renderProducts();showToast(wasEditing?"Produto alterado com sucesso!":"Produto adicionado com sucesso!")}catch(e){console.error(e);alert('Não foi possível salvar o produto no Supabase.')}finally{btn.disabled=false;if(editingProductIndex===null)btn.textContent='ADICIONAR PRODUTO'}}
 $("saveProductBtn").addEventListener("click",saveProductForm);
-
-function editProduct(i){const p=getProducts()[i];editingProductIndex=i;$("name").value=p.name||"";$("price").value=p.price||"";$("description").value=p.desc||"";$("unit").value=p.unit||"";$("icon").value=p.icon||"";$("featured").checked=!!p.featured;selectedImage=p.image||"";if(selectedImage){$("preview").src=selectedImage;$("preview").style.display="block";$("placeholder").style.display="none"}else{$("preview").style.display="none";$("placeholder").style.display="block"}renderCategoryChecks(p.categories||[]);$("productFormTitle").textContent="Editar produto";$("saveProductBtn").textContent="SALVAR ALTERAÇÕES";window.scrollTo({top:180,behavior:"smooth"})}
-function toggleProduct(i){const p=getProducts();p[i].available=!p[i].available;saveProducts(p);renderProducts()}
-function removeProduct(i){if(!confirm("Excluir produto?"))return;const p=getProducts();p.splice(i,1);saveProducts(p);renderProducts()}
+function editProduct(i){const p=getProducts()[i];editingProductIndex=i;$("name").value=p.name||"";$("price").value=p.price||"";$("description").value=p.desc||"";$("unit").value=p.unit||"";$("icon").value=p.icon||"";$("featured").checked=!!p.featured;selectedImage=p.image||"";selectedImageFile=null;if(selectedImage){$("preview").src=selectedImage;$("preview").style.display="block";$("placeholder").style.display="none"}else{$("preview").style.display="none";$("placeholder").style.display="block"}renderCategoryChecks(p.categories||[]);$("productFormTitle").textContent="Editar produto";$("saveProductBtn").textContent="SALVAR ALTERAÇÕES";window.scrollTo({top:180,behavior:"smooth"})}
+async function toggleProduct(i){try{const p=[...getProducts()];p[i]={...p[i],available:!p[i].available};await saveSetting('products',p);state.products=p;renderProducts()}catch(e){alert('Não foi possível atualizar o produto.')}}
+async function removeProduct(i){if(!confirm("Excluir produto?"))return;try{const p=[...getProducts()];p.splice(i,1);await saveSetting('products',p);state.products=p;renderProducts();showToast('Produto excluído.')}catch(e){alert('Não foi possível excluir o produto.')}}
 function renderProducts(){const p=getProducts();$("productList").innerHTML=p.map((x,i)=>`<article class="item"><div class="thumb">${x.image?`<img src="${x.image}" alt="">`:(x.icon||"🍾")}</div><div><h3>${x.name} ${x.featured?"★":""}</h3><small>${(x.categories||[]).join(" • ")} · <span style="color:var(--gold2)">${x.price}</span> · ${x.available?"Disponível":"Oculto"}</small></div><div class="actions"><button class="secondary" onclick="editProduct(${i})">EDITAR</button><button class="secondary" onclick="toggleProduct(${i})">${x.available?"OCULTAR":"ATIVAR"}</button><button class="danger" onclick="removeProduct(${i})">EXCLUIR</button></div></article>`).join("")}
-
-function addCategory(){const v=$("newCategory").value.trim();if(!v)return;const c=getCategories();if(c.includes(v)){alert("Essa categoria já existe.");return}c.push(v);saveCategories(c);$("newCategory").value="";renderCategoriesAdmin();renderCategoryChecks([])}
+async function addCategory(){const v=$("newCategory").value.trim();if(!v)return;const c=[...getCategories()];if(c.includes(v)){alert("Essa categoria já existe.");return}c.push(v);try{await saveSetting('categories',c);state.categories=c;$("newCategory").value="";renderCategoriesAdmin();renderCategoryChecks([]);showToast('Categoria criada!')}catch(e){alert('Não foi possível criar a categoria.')}}
 $("addCategoryBtn").addEventListener("click",addCategory);
-function editCategory(i){const c=getCategories(),old=c[i],v=prompt("Novo nome da categoria:",old);if(!v||!v.trim()||v.trim()===old)return;const nn=v.trim();c[i]=nn;saveCategories(c);saveProducts(getProducts().map(x=>({...x,categories:(x.categories||[]).map(k=>k===old?nn:k)})));renderAll()}
-function deleteCategory(i){const c=getCategories(),old=c[i];if(!confirm(`Excluir a categoria "${old}"?`))return;c.splice(i,1);saveCategories(c);saveProducts(getProducts().map(x=>({...x,categories:(x.categories||[]).filter(k=>k!==old)})));renderAll()}
+async function editCategory(i){const c=[...getCategories()],old=c[i],v=prompt("Novo nome da categoria:",old);if(!v||!v.trim()||v.trim()===old)return;const nn=v.trim(),products=getProducts().map(x=>({...x,categories:(x.categories||[]).map(k=>k===old?nn:k)}));c[i]=nn;try{await Promise.all([saveSetting('categories',c),saveSetting('products',products)]);state.categories=c;state.products=products;renderAll()}catch(e){alert('Não foi possível editar a categoria.')}}
+async function deleteCategory(i){const c=[...getCategories()],old=c[i];if(!confirm(`Excluir a categoria "${old}"?`))return;c.splice(i,1);const products=getProducts().map(x=>({...x,categories:(x.categories||[]).filter(k=>k!==old)}));try{await Promise.all([saveSetting('categories',c),saveSetting('products',products)]);state.categories=c;state.products=products;renderAll()}catch(e){alert('Não foi possível excluir a categoria.')}}
 function renderCategoriesAdmin(){$("categoryList").innerHTML=getCategories().map((c,i)=>`<div class="cat-row"><b>${c}</b><div class="actions"><button class="secondary" onclick="editCategory(${i})">EDITAR</button><button class="danger" onclick="deleteCategory(${i})">EXCLUIR</button></div></div>`).join("")}
-
-function renderEventEditor(){
-  const events=getEvents();eventImages=events.map(e=>e.image||"");
-  $("eventEditor").innerHTML=events.map((e,i)=>`
-    <div class="event-admin">
-      <h3>Evento ${i+1}</h3>
-      <div class="resolution">Use banner 1920 × 1080 px (16:9).</div>
-      <div class="grid">
-        <div class="full">
-          <label>Banner do evento</label>
-          <div class="upload">
-            <input type="file" accept="image/*" data-event-image="${i}">
-            <div id="eventPlaceholder${i}" class="placeholder" style="${e.image?'display:none':''}"><b>CLIQUE PARA TROCAR O BANNER</b>JPG, PNG ou WEBP</div>
-            <img id="eventPreview${i}" class="preview" src="${e.image||""}" style="${e.image?'display:block':'display:none'}">
-            <div id="eventTools${i}" class="upload-tools" style="${e.image?'display:block':'display:none'}">
-              <button type="button" class="danger trash" data-remove-event-image="${i}" title="Remover banner">🗑️</button>
-            </div>
-          </div>
-        </div>
-        <div class="full"><label>Título / Informações</label><input id="eventTitle${i}" value="${(e.title||"").replaceAll('"','&quot;')}"></div>
-        <div><label>Data / Horário</label><input id="eventDate${i}" value="${(e.date||"").replaceAll('"','&quot;')}"></div>
-        <div><label>Valor</label><input id="eventPrice${i}" value="${(e.price||"").replaceAll('"','&quot;')}"></div>
-        <div><label>Lote</label>
-          <select id="eventLot${i}">
-            <option value="">Sem lote</option>
-            <option ${e.lot==="Lote 1"?"selected":""}>Lote 1</option>
-            <option ${e.lot==="Lote 2"?"selected":""}>Lote 2</option>
-            <option ${e.lot==="Lote 3"?"selected":""}>Lote 3</option>
-          </select>
-        </div>
-        <div class="full"><label>Link do COMPRAR INGRESSO</label><input id="eventLink${i}" value="${(e.link||"").replaceAll('"','&quot;')}" placeholder="https://..."></div>
-      </div>
-    </div>`).join("");
-
-  document.querySelectorAll("[data-event-image]").forEach(input=>input.addEventListener("change",e=>{
-    const i=Number(input.dataset.eventImage);readImage(e.target.files[0],src=>{eventImages[i]=src;$("eventPreview"+i).src=src;$("eventPreview"+i).style.display="block";$("eventPlaceholder"+i).style.display="none";$("eventTools"+i).style.display="block"})
-  }));
-  document.querySelectorAll("[data-remove-event-image]").forEach(btn=>btn.addEventListener("click",e=>{
-    e.preventDefault();e.stopPropagation();const i=Number(btn.dataset.removeEventImage);eventImages[i]="";const fileInput=document.querySelector(`[data-event-image="${i}"]`);if(fileInput)fileInput.value="";$("eventPreview"+i).src="";$("eventPreview"+i).style.display="none";$("eventPlaceholder"+i).style.display="block";$("eventTools"+i).style.display="none";showToast("Banner removido. Escolha outro quando quiser.")
-  }));
-}
-function saveEventsForm(){
-  const current=getEvents();
-  const events=[0,1,2].map(i=>({title:$("eventTitle"+i).value.trim(),date:$("eventDate"+i).value.trim(),price:$("eventPrice"+i).value.trim(),lot:$("eventLot"+i).value,link:$("eventLink"+i).value.trim()||"#",image:eventImages[i]||""}));
-  try{saveEvents(events);showToast("Eventos atualizados com sucesso!")}catch(e){alert("Não foi possível salvar. Tente imagens menores.")}
-}
+function escAttr(v){return String(v||'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}
+function renderEventEditor(){const events=getEvents();eventImages=events.map(e=>e.image||"");eventImageFiles=[null,null,null];$("eventEditor").innerHTML=events.map((e,i)=>`<div class="event-admin"><h3>Evento ${i+1}</h3><div class="resolution">Use banner 1920 × 1080 px (16:9).</div><div class="grid"><div class="full"><label>Banner do evento</label><div class="upload"><input type="file" accept="image/*" data-event-image="${i}"><div id="eventPlaceholder${i}" class="placeholder" style="${e.image?'display:none':''}"><b>CLIQUE PARA TROCAR O BANNER</b>JPG, PNG ou WEBP</div><img id="eventPreview${i}" class="preview" src="${escAttr(e.image)}" style="${e.image?'display:block':'display:none'}"><div id="eventTools${i}" class="upload-tools" style="${e.image?'display:block':'display:none'}"><button type="button" class="danger trash" data-remove-event-image="${i}" title="Remover banner">🗑️</button></div></div></div><div class="full"><label>Título / Informações</label><input id="eventTitle${i}" value="${escAttr(e.title)}"></div><div><label>Data / Horário</label><input id="eventDate${i}" value="${escAttr(e.date)}"></div><div><label>Valor</label><input id="eventPrice${i}" value="${escAttr(e.price)}"></div><div><label>Lote</label><select id="eventLot${i}"><option value="">Sem lote</option><option ${e.lot==="Lote 1"?"selected":""}>Lote 1</option><option ${e.lot==="Lote 2"?"selected":""}>Lote 2</option><option ${e.lot==="Lote 3"?"selected":""}>Lote 3</option></select></div><div class="full"><label>Link do COMPRAR INGRESSO</label><input id="eventLink${i}" value="${escAttr(e.link)}" placeholder="https://..."></div></div></div>`).join('');document.querySelectorAll('[data-event-image]').forEach(input=>input.addEventListener('change',e=>{const i=Number(input.dataset.eventImage),f=e.target.files[0];if(!f)return;eventImageFiles[i]=f;eventImages[i]='';previewFile(f,$('eventPreview'+i),$('eventPlaceholder'+i));$('eventTools'+i).style.display='block'}));document.querySelectorAll('[data-remove-event-image]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const i=Number(btn.dataset.removeEventImage);eventImages[i]='';eventImageFiles[i]=null;const fi=document.querySelector(`[data-event-image="${i}"]`);if(fi)fi.value='';$('eventPreview'+i).src='';$('eventPreview'+i).style.display='none';$('eventPlaceholder'+i).style.display='block';$('eventTools'+i).style.display='none';showToast('Banner removido. Clique em SALVAR EVENTOS para confirmar.')}))}
+async function saveEventsForm(){const btn=$("saveEventsBtn");btn.disabled=true;btn.textContent='SALVANDO...';try{const events=[];for(let i=0;i<3;i++){let image=eventImages[i]||'';if(eventImageFiles[i])image=await uploadImage(eventImageFiles[i],'events');events.push({title:$("eventTitle"+i).value.trim(),date:$("eventDate"+i).value.trim(),price:$("eventPrice"+i).value.trim(),lot:$("eventLot"+i).value,link:$("eventLink"+i).value.trim()||"#",image})}await saveSetting('events',events);state.events=events;renderEventEditor();showToast('Eventos atualizados com sucesso!')}catch(e){console.error(e);alert('Não foi possível salvar os eventos no Supabase.')}finally{btn.disabled=false;btn.textContent='SALVAR EVENTOS'}}
 $("saveEventsBtn").addEventListener("click",saveEventsForm);
-
 function renderAll(){renderProducts();renderCategoriesAdmin();renderCategoryChecks([]);renderEventEditor();applyAdminLogo()}
-
-function openDohaDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open("doha_site_db",1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains("assets"))db.createObjectStore("assets")};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
-async function saveAssetDB(key,value){const db=await openDohaDB();return new Promise((resolve,reject)=>{const tx=db.transaction("assets","readwrite");tx.objectStore("assets").put(value,key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
-async function getAssetDB(key){try{const db=await openDohaDB();return await new Promise((resolve,reject)=>{const tx=db.transaction("assets","readonly");const req=tx.objectStore("assets").get(key);req.onsuccess=()=>resolve(req.result||"");req.onerror=()=>reject(req.error)})}catch(e){return ""}}
-async function deleteAssetDB(key){try{const db=await openDohaDB();return await new Promise((resolve,reject)=>{const tx=db.transaction("assets","readwrite");tx.objectStore("assets").delete(key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}catch(e){}}
-function optimizeLogo(file){return new Promise((resolve,reject)=>{if(!file){resolve("");return}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const maxW=1000,maxH=600,scale=Math.min(1,maxW/img.width,maxH/img.height);const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);let out="";try{out=canvas.toDataURL("image/webp",.88)}catch(e){}if(!out||out.length<100)out=canvas.toDataURL("image/png");resolve(out)};img.onerror=()=>reject(new Error("Imagem inválida"));img.src=reader.result};reader.onerror=()=>reject(reader.error);reader.readAsDataURL(file)})}
-async function applyAdminLogo(){let logo=await getAssetDB("site_logo");if(!logo)logo=localStorage.getItem("club_site_logo")||"";if(logo){$("adminSiteLogo").src=logo;$("logoPreview").src=logo;$("logoPreview").style.display="block";$("logoPlaceholder").style.display="none"}}
-$("logoFile").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{selectedLogo=await optimizeLogo(file);$("logoPreview").src=selectedLogo;$("logoPreview").style.display="block";$("logoPlaceholder").style.display="none"}catch(err){alert("Não foi possível ler essa logo. Tente PNG, JPG ou WEBP.")}});
-$("saveLogoBtn").addEventListener("click",async()=>{if(!selectedLogo){const existing=(await getAssetDB("site_logo"))||localStorage.getItem("club_site_logo");if(!existing){alert("Escolha uma logo primeiro.");return}}try{if(selectedLogo){await saveAssetDB("site_logo",selectedLogo);try{localStorage.removeItem("club_site_logo");localStorage.setItem("club_site_logo",selectedLogo)}catch(e){localStorage.removeItem("club_site_logo")}}await applyAdminLogo();showToast("Logo do site salva com sucesso!")}catch(e){alert("Não foi possível salvar a logo neste navegador.")}});
-$("resetLogoBtn").addEventListener("click",async()=>{localStorage.removeItem("club_site_logo");await deleteAssetDB("site_logo");selectedLogo="";$("logoFile").value="";$("adminSiteLogo").src="logo-doha.png";$("logoPreview").src="logo-doha.png";$("logoPreview").style.display="block";$("logoPlaceholder").style.display="none";showToast("Logo original restaurada!")});
-
-if(sessionStorage.getItem("doha_admin")==="1")showAdmin();
+function applyAdminLogo(){const logo=state.logo||'logo-doha.png';$("adminSiteLogo").src=logo;$("logoPreview").src=logo;$("logoPreview").style.display='block';$("logoPlaceholder").style.display='none'}
+$("logoFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;selectedLogoFile=f;previewFile(f,$("logoPreview"),$("logoPlaceholder"))});
+$("saveLogoBtn").addEventListener("click",async()=>{if(!selectedLogoFile&&!state.logo){alert('Escolha uma logo primeiro.');return}const btn=$("saveLogoBtn");btn.disabled=true;btn.textContent='SALVANDO...';try{let url=state.logo;if(selectedLogoFile)url=await uploadImage(selectedLogoFile,'logo');await saveSetting('logo',url);state.logo=url;selectedLogoFile=null;applyAdminLogo();showToast('Logo do site salva no Supabase!')}catch(e){console.error(e);alert('Não foi possível salvar a logo no Supabase.')}finally{btn.disabled=false;btn.textContent='SALVAR LOGO'}});
+$("resetLogoBtn").addEventListener("click",async()=>{if(!confirm('Restaurar a logo original do site?'))return;try{await saveSetting('logo','');state.logo='';selectedLogoFile=null;$("logoFile").value='';applyAdminLogo();showToast('Logo original restaurada!')}catch(e){alert('Não foi possível restaurar a logo.')}});
+(async()=>{const {data}=await sb.auth.getSession();if(data.session)await showAdmin()})();
 </script>
 </body>
 </html>

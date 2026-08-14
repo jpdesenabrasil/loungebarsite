@@ -292,56 +292,16 @@ footer{padding:26px 0;color:#777;font-size:11px;text-align:center}
 
 <footer>© 2026 Dôha Gastro Bar.</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const DEFAULT_EVENTS = [
-  {title:"FEIJOADA / OPEN BAR / BRAGGA / ILUAIE", date:"15/08/2026 13:00", price:"R$ 20,00", lot:"Lote 1", image:"flyer-1.jpg", link:"#"},
-  {title:"RAMON RAMOS / CHURRASCADA / OPEN BAR", date:"16/08/2026 13:00", price:"R$ 25,00", lot:"Lote 2", image:"flyer-2.jpg", link:"#"},
-  {title:"RESENHA DE CRENTE / MARCADOS", date:"21/08/2026 18:00", price:"R$ 40,00", lot:"Lote 3", image:"flyer-3.jpg", link:"#"}
-];
-function getEvents(){
-  try{
-    const x=JSON.parse(localStorage.getItem("club_events"));
-    if(Array.isArray(x)&&x.length) return x.slice(0,3).map((e,i)=>({...DEFAULT_EVENTS[i],...e}));
-  }catch(e){}
-  return DEFAULT_EVENTS;
-}
-function renderEvents(){
-  document.getElementById("eventsGrid").innerHTML=getEvents().map(e=>`
-    <article class="event">
-      <img src="${e.image||"flyer-1.jpg"}" alt="${e.title||"Evento"}">
-      <div class="event-content">
-        <h3>${e.title||""}</h3>
-        <div class="event-meta">
-          <div class="meta-line"><div class="meta-left"><span class="gold-icon">◫</span>${e.date||""}</div></div>
-          <div class="meta-line">
-            <div class="meta-left"><span class="gold-icon">◉</span>Ingressos a partir de ${e.price||""}</div>
-            ${e.lot?`<span class="lot-pill">${e.lot}</span>`:""}
-          </div>
-        </div>
-        <a class="btn" href="${e.link||"#"}" ${/^https?:/i.test(e.link||"")?'target="_blank" rel="noopener"':""}>COMPRAR INGRESSO</a>
-      </div>
-    </article>`).join("");
-}
-renderEvents();
-function applySiteLogo(){
-  async function loadSiteLogo(){
-    const el=document.getElementById("siteLogo");
-    const local=localStorage.getItem("club_site_logo");if(local)el.src=local;
-    try{const req=indexedDB.open("doha_site_db",1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains("assets"))db.createObjectStore("assets")};req.onsuccess=()=>{const db=req.result;const tx=db.transaction("assets","readonly");const get=tx.objectStore("assets").get("site_logo");get.onsuccess=()=>{if(get.result)el.src=get.result}}}catch(e){}
-  }
-  loadSiteLogo();
-}
-function setupEventNavigation(){
-  const grid=document.getElementById("eventsGrid");
-  const prev=document.getElementById("eventPrev"), next=document.getElementById("eventNext");
-  const step=()=>grid.clientWidth;
-  prev.addEventListener("click",()=>grid.scrollBy({left:-step(),behavior:"smooth"}));
-  next.addEventListener("click",()=>grid.scrollBy({left:step(),behavior:"smooth"}));
-}
-applySiteLogo();
-setupEventNavigation();
-document.querySelectorAll('.links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.links').classList.remove('open')));
-
+const SUPABASE_URL="https://wrueyldafgxdjmfytibb.supabase.co",SUPABASE_KEY="sb_publishable_GOJnRw6wmvTwMmOj1VtF2Q_RHBwBOXz";const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const DEFAULT_EVENTS=[{title:"FEIJOADA / OPEN BAR / BRAGGA / ILUAIE",date:"15/08/2026 13:00",price:"R$ 20,00",lot:"Lote 1",image:"flyer-1.jpg",link:"#"},{title:"RAMON RAMOS / CHURRASCADA / OPEN BAR",date:"16/08/2026 13:00",price:"R$ 25,00",lot:"Lote 2",image:"flyer-2.jpg",link:"#"},{title:"RESENHA DE CRENTE / MARCADOS",date:"21/08/2026 18:00",price:"R$ 40,00",lot:"Lote 3",image:"flyer-3.jpg",link:"#"}];
+function esc(v){return String(v||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
+async function setting(key,fallback){try{const {data,error}=await sb.from('site_settings').select('value').eq('key',key).maybeSingle();if(error)throw error;return data?.value??fallback}catch(e){console.warn('Supabase:',e);return fallback}}
+function renderEvents(events){document.getElementById('eventsGrid').innerHTML=events.map(e=>`<article class="event"><img src="${esc(e.image||'flyer-1.jpg')}" alt="${esc(e.title||'Evento')}"><div class="event-content"><h3>${esc(e.title||'')}</h3><div class="event-meta"><div class="meta-line"><div class="meta-left"><span class="gold-icon">◫</span>${esc(e.date||'')}</div></div><div class="meta-line"><div class="meta-left"><span class="gold-icon">◉</span>Ingressos a partir de ${esc(e.price||'')}</div>${e.lot?`<span class="lot-pill">${esc(e.lot)}</span>`:''}</div></div><a class="btn" href="${esc(e.link||'#')}" ${/^https?:/i.test(e.link||'')?'target="_blank" rel="noopener"':''}>COMPRAR INGRESSO</a></div></article>`).join('')}
+async function loadContent(){const [events,logo]=await Promise.all([setting('events',DEFAULT_EVENTS),setting('logo','')]);renderEvents(Array.isArray(events)&&events.length?events:DEFAULT_EVENTS);if(logo)document.getElementById('siteLogo').src=typeof logo==='string'?logo:logo.url}
+function setupEventNavigation(){const grid=document.getElementById('eventsGrid'),prev=document.getElementById('eventPrev'),next=document.getElementById('eventNext');const step=()=>grid.clientWidth;prev.addEventListener('click',()=>grid.scrollBy({left:-step(),behavior:'smooth'}));next.addEventListener('click',()=>grid.scrollBy({left:step(),behavior:'smooth'}))}
+setupEventNavigation();loadContent();document.querySelectorAll('.links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.links').classList.remove('open')));
 </script>
 </body>
 </html>
