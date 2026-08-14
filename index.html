@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dôha Gastro Bar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold1:#fff0a8;--gold2:#f2c24d;--gold3:#c58b16;--gold4:#72500b;
+  --glow:0 0 10px rgba(242,194,77,.28),0 0 24px rgba(242,194,77,.10),0 0 42px rgba(197,139,22,.05)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:#fff;font-family:Inter,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 15% 12%,rgba(241,184,45,.07),transparent 22%),
+    radial-gradient(circle at 85% 38%,rgba(241,184,45,.05),transparent 24%),
+    linear-gradient(135deg,rgba(255,190,40,.03) 0 1px,transparent 1px 50px),
+    linear-gradient(45deg,rgba(255,190,40,.025) 0 1px,transparent 1px 70px),
+    #020202;
+  background-size:auto,auto,70px 70px,90px 90px,auto
+}
+a{text-decoration:none;color:inherit}
+.container{width:min(1180px,calc(100% - 36px));margin:auto}
+.top{text-align:center;padding:28px 0 18px}
+.logo-img{width:min(320px,52vw);height:auto;display:block;margin:auto;filter:drop-shadow(0 0 9px rgba(242,194,77,.18))}
+.nav-wrap{position:sticky;top:0;z-index:40;padding:10px 0 12px;background:linear-gradient(#020202f0,#020202d8,transparent)}
+.nav{min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 18px;border:1px solid var(--gold4);border-radius:10px;background:#050505;box-shadow:var(--glow)}
+.links{display:flex;align-items:center;gap:28px}.links a{font-size:12px;font-weight:300}.links a:hover,.links a.active{color:var(--gold2)}
+.nav-actions{display:flex;align-items:center;gap:10px}.icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--gold4);color:var(--gold2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--gold3);border-radius:7px;padding:12px 18px;background:linear-gradient(180deg,rgba(242,194,77,.10),rgba(197,139,22,.03));color:var(--gold1);font-weight:700;font-size:12px;box-shadow:var(--glow)}
+.mobile{display:none;background:none;border:0;color:var(--gold2);font-size:24px}
+.section{padding:20px 0 26px}
+.title{text-align:center;margin:6px 0 28px;text-transform:uppercase;line-height:.92}
+.title .small{font-size:22px;font-weight:700}.title .big{display:block;font-size:60px;font-weight:900;letter-spacing:-2px;background:linear-gradient(180deg,var(--gold1),var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(242,194,77,.16))}
+.events-wrap{position:relative}.events{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.event-nav{display:none}
+.event{overflow:hidden;border:1px solid rgba(197,139,22,.72);border-radius:12px;background:linear-gradient(180deg,#0d0d0d,#050505);box-shadow:var(--glow);transition:box-shadow .25s ease,border-color .25s ease}.event:hover{border-color:rgba(242,194,77,.78);box-shadow:0 0 13px rgba(242,194,77,.30),0 0 32px rgba(197,139,22,.10)}
+.event img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#0b0b0b}
+.event-content{padding:16px 18px 14px;text-align:center;border-top:1px solid rgba(237,183,52,.2)}
+.event h3{margin:0 0 16px;min-height:44px;color:var(--gold1);font-size:17px;line-height:1.25;font-weight:900;text-transform:uppercase}
+.event-meta{display:grid;gap:9px;margin-bottom:13px;color:#dadada;font-size:12px;text-align:left}
+.meta-line{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.meta-left{display:flex;align-items:center;gap:10px}
+.gold-icon{color:var(--gold2)}
+.lot-pill{border:1px solid var(--gold4);border-radius:999px;padding:5px 8px;color:var(--gold2);font-size:10px;font-weight:700;background:#0b0b0b}
+.banner{
+      margin-top:14px;
+      border:1px solid var(--gold4);
+      border-radius:10px;
+      min-height:210px;
+      display:grid;
+      grid-template-columns:180px 1fr 120px;
+      align-items:center;
+      padding:22px 36px;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(90deg,rgba(2,2,2,.97) 0%,rgba(2,2,2,.88) 38%,rgba(2,2,2,.22) 68%,rgba(2,2,2,.05) 100%),
+        url("cardapio-destaque.png") center right / cover no-repeat;
+      box-shadow:var(--glow)
+    }
+.banner>*{position:relative;z-index:2}.list-icon{width:92px;height:92px;border:2px solid var(--gold2);border-radius:24px;display:grid;place-items:center;color:var(--gold2);font-size:42px;box-shadow:var(--glow)}
+.banner-title{font-size:52px;line-height:.9;font-weight:900;text-transform:uppercase;letter-spacing:-2px}.banner-title .gold{display:block;background:linear-gradient(180deg,var(--gold1),var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.banner-sub{color:#ddd;font-size:14px;margin-top:8px;font-weight:300}.arrow{font-size:72px;color:var(--gold2);text-align:center}
+.birthday{
+      margin-top:12px;
+      min-height:190px;
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      border:1px solid var(--gold4);
+      border-radius:10px;
+      overflow:hidden;
+      box-shadow:var(--glow);
+      background:
+        radial-gradient(circle at 78% 42%,rgba(242,194,77,.16),transparent 34%),
+        linear-gradient(90deg,#070707 0 52%,#0f0b05 100%);
+    }
+    .birthday-copy{padding:34px 38px;align-self:center}
+    .birthday-copy .eyebrow{font-size:21px;font-weight:700;letter-spacing:.3px}
+    .birthday-copy h2{
+      margin:3px 0 10px;
+      font-size:44px;
+      line-height:1;
+      font-weight:900;
+      text-transform:uppercase;
+      background:linear-gradient(180deg,var(--gold1),var(--gold2),var(--gold3));
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      filter:drop-shadow(0 0 8px rgba(242,194,77,.16))
+    }
+    .birthday-copy p{margin:0;color:#e4e4e4;font-size:14px;line-height:1.55;font-weight:300;max-width:430px}
+    .birthday-art{
+      min-height:190px;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(90deg,rgba(5,5,5,.76),rgba(5,5,5,.08) 48%,rgba(5,5,5,.28)),
+        url("aniversario-brinde.png") center right / cover no-repeat;
+    }
+    .birthday-art:after{
+      content:"";
+      position:absolute;inset:0;
+      background:linear-gradient(90deg,rgba(242,194,77,.05),transparent 42%);
+      pointer-events:none
+    }
+    .birthday-btn{
+      position:absolute;right:26px;bottom:24px;z-index:2
+    }
+
+.location-section{padding:56px 0 34px}
+.location-heading{text-align:center;margin-bottom:30px}
+.location-heading .eyebrow{font-size:12px;letter-spacing:3px;font-weight:700;color:var(--gold2);text-transform:uppercase}
+.location-heading h2{margin:8px 0 0;font-size:46px;font-weight:900;letter-spacing:-1.5px}
+.location-heading h2 span{background:linear-gradient(180deg,var(--gold1),var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 9px rgba(242,194,77,.13))}
+.location-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:stretch}
+.map-card{min-height:430px;border:1px solid var(--gold4);border-radius:13px;overflow:hidden;background:#080808;box-shadow:var(--glow)}
+.map-card iframe{display:block;width:100%;height:100%;min-height:430px;border:0;filter:saturate(.78) contrast(1.02)}
+.contact-list{display:grid;gap:12px}
+.contact-card{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:start;padding:19px;border:1px solid rgba(197,139,22,.48);border-radius:12px;background:linear-gradient(180deg,#0c0c0c,#070707);box-shadow:0 0 18px rgba(197,139,22,.05)}
+.contact-icon{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:rgba(242,194,77,.09);border:1px solid rgba(242,194,77,.18);color:var(--gold2);font-size:20px}
+.contact-card h3{margin:1px 0 7px;font-size:16px;font-weight:700}
+.contact-card p{margin:0 0 8px;color:#bdbdbd;font-size:13px;line-height:1.55;font-weight:300}
+.contact-links{display:flex;gap:8px;flex-wrap:wrap}
+.contact-link{font-size:11px;font-weight:700;color:var(--gold2);padding:8px 10px;border:1px solid var(--gold4);border-radius:7px;background:#090909}
+.contact-link:hover{box-shadow:var(--glow)}
+@media(max-width:800px){.location-grid{grid-template-columns:1fr}.map-card,.map-card iframe{min-height:350px}.location-heading h2{font-size:38px}}
+
+footer{padding:26px 0;color:#777;font-size:11px;text-align:center}
+@media(max-width:900px){
+  .links{display:none;position:absolute;left:18px;right:18px;top:69px;background:#0a0a0a;border:1px solid var(--gold4);padding:14px;flex-direction:column}.links.open{display:flex}.mobile{display:block}.banner{grid-template-columns:120px 1fr 70px}
+  .events-wrap{padding:0 42px}
+  .events{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;gap:14px;scrollbar-width:none;-ms-overflow-style:none}
+  .events::-webkit-scrollbar{display:none}
+  .event{flex:0 0 100%;scroll-snap-align:center}
+  .event-nav{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:34px;height:54px;border-radius:9px;border:1px solid var(--gold4);background:rgba(5,5,5,.94);color:var(--gold2);font-size:26px;box-shadow:var(--glow);cursor:pointer}
+  .event-prev{left:0}.event-next{right:0}
+}
+
+@media(max-width:600px){
+  .logo-img{width:min(250px,68vw)}.nav-actions .icon{display:none}.title .small{font-size:16px}.title .big{font-size:34px;letter-spacing:-1px;white-space:nowrap}.banner{grid-template-columns:1fr;text-align:center}.list-icon{margin:auto}.arrow{display:none}.birthday{grid-template-columns:1fr}.birthday-copy{padding:26px 22px}.birthday-art{min-height:165px}
+}
+
+
+/* ===== MOBILE PREMIUM ===== */
+@media (max-width:600px){
+  body{overflow-x:hidden;background-size:auto,auto,54px 54px,70px 70px,auto}
+  .container{width:min(100% - 24px,1180px)}
+  .top{padding:18px 0 10px}
+  .logo-img{width:min(212px,64vw);filter:drop-shadow(0 0 12px rgba(242,194,77,.22))}
+  .nav-wrap{padding:6px 0 9px;background:linear-gradient(#020202f7,#020202e8,transparent)}
+  .nav{min-height:54px;padding:0 9px 0 12px;border-radius:12px;backdrop-filter:blur(12px)}
+  .mobile{width:40px;height:40px;display:grid;place-items:center;border:1px solid rgba(197,139,22,.55);border-radius:10px;font-size:21px;background:rgba(242,194,77,.04)}
+  .nav-actions{margin-left:auto}.nav-actions .btn{padding:11px 13px;font-size:10px;white-space:nowrap}
+  .links{left:12px;right:12px;top:63px;padding:10px;gap:3px;border-radius:12px;box-shadow:0 14px 45px rgba(0,0,0,.62),var(--glow);backdrop-filter:blur(16px)}
+  .links a{width:100%;padding:13px 12px;border-radius:8px;font-size:11px;text-align:left}
+  .links a:active,.links a:hover{background:rgba(242,194,77,.07)}
+
+  .section{padding:14px 0 20px}
+  .title{margin:10px 0 20px}.title .small{font-size:13px;letter-spacing:2.8px}.title .big{font-size:clamp(27px,9.2vw,36px);letter-spacing:-1.3px;line-height:1.02}
+  .events-wrap{padding:0 28px}
+  .events{gap:11px;scroll-padding:0}
+  .event{flex:0 0 100%;border-radius:15px}
+  .event img{aspect-ratio:16/9}
+  .event-content{padding:14px 14px 15px}
+  .event h3{font-size:14px;min-height:auto;margin:0 0 12px;line-height:1.3}
+  .event-meta{font-size:10.5px;gap:8px;margin-bottom:12px}.meta-left{gap:7px}.lot-pill{font-size:9px;padding:4px 7px}
+  .event .btn{width:100%;padding:12px 10px;font-size:10px}
+  .event-nav{width:31px;height:48px;border-radius:10px;font-size:24px;background:rgba(6,6,6,.97)}
+  .event-prev{left:-5px}.event-next{right:-5px}
+
+  .banner{margin-top:18px;min-height:245px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;text-align:left;padding:22px;border-radius:15px;background:linear-gradient(180deg,rgba(2,2,2,.03) 10%,rgba(2,2,2,.30) 46%,rgba(2,2,2,.95) 78%),url("cardapio-destaque.png") center 38% / cover no-repeat}
+  .list-icon{width:48px;height:48px;border-radius:13px;font-size:24px;margin:0 0 13px}
+  .banner-title{font-size:36px;letter-spacing:-1.4px;line-height:.88}.banner-sub{font-size:10px;letter-spacing:.7px;margin-top:10px}.arrow{display:block;position:absolute;right:18px;bottom:18px;font-size:40px}
+
+  .birthday{margin-top:14px;display:block;min-height:0;border-radius:15px;background:#070707}
+  .birthday-art{height:218px;min-height:0;order:0;background:linear-gradient(180deg,rgba(5,5,5,.04),rgba(5,5,5,.04) 52%,rgba(5,5,5,.96) 100%),url("aniversario-brinde.png") center / cover no-repeat}
+  .birthday-copy{padding:22px 20px 20px}.birthday-copy .eyebrow{font-size:13px;letter-spacing:1.8px}.birthday-copy h2{font-size:32px;margin:5px 0 9px}.birthday-copy p{font-size:12px;line-height:1.6}
+  .birthday-btn{right:14px;bottom:14px;padding:11px 13px;font-size:9px;background:rgba(7,7,7,.90);backdrop-filter:blur(8px)}
+
+  .location-section{padding:42px 0 22px}.location-heading{margin-bottom:20px}.location-heading .eyebrow{font-size:9px;letter-spacing:2.6px}.location-heading h2{font-size:30px;letter-spacing:-1px}
+  .location-grid{gap:12px}.map-card,.map-card iframe{min-height:285px}.map-card{border-radius:15px}
+  .contact-list{gap:9px}.contact-card{grid-template-columns:42px 1fr;gap:11px;padding:14px;border-radius:13px}.contact-icon{width:38px;height:38px;font-size:17px}.contact-card h3{font-size:14px}.contact-card p{font-size:11px}.contact-links{gap:6px}.contact-link{font-size:9px;padding:8px 9px}
+  footer{padding:22px 12px 30px;font-size:9px}
+}
+@media (max-width:380px){
+  .container{width:min(100% - 18px,1180px)}
+  .nav-actions .btn{padding:10px 9px;font-size:9px}.title .big{font-size:26px}
+  .events-wrap{padding:0 23px}.event-prev{left:-5px}.event-next{right:-5px}
+  .banner-title{font-size:32px}.birthday-copy h2{font-size:29px}
+}
+
+</style>
+</head>
+<body>
+<header class="top">
+  <img id="siteLogo" class="logo-img" src="logo-doha.png" alt="Dôha Gastro Bar">
+</header>
+
+<div class="nav-wrap">
+  <div class="container">
+    <nav class="nav">
+      <button class="mobile" onclick="document.querySelector('.links').classList.toggle('open')">☰</button>
+      <div class="links">
+        <a class="active" href="#">INÍCIO</a>
+        <a href="#programacao">PROGRAMAÇÃO</a>
+        <a href="cardapio.html">CARDÁPIO</a>
+        <a href="#sobre">QUEM SOMOS</a>
+        <a href="#localizacao">LOCALIZAÇÃO</a>
+      </div>
+      <div class="nav-actions">
+        <span class="icon">◎</span><span class="icon">◔</span>
+        <a class="btn" href="cardapio.html">VER CARDÁPIO</a>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<main class="container">
+  <section class="section" id="programacao">
+    <div class="title"><span class="small">NOSSA</span><span class="big">PROGRAMAÇÃO</span></div>
+    <div class="events-wrap"><button class="event-nav event-prev" id="eventPrev" aria-label="Evento anterior">‹</button><div id="eventsGrid" class="events"></div><button class="event-nav event-next" id="eventNext" aria-label="Próximo evento">›</button></div>
+
+    <a href="cardapio.html" style="display:block">
+      <section class="banner">
+        <div class="list-icon">☷</div>
+        <div><div class="banner-title"><span>VER</span><span class="gold">CARDÁPIO</span></div><div class="banner-sub">BEBIDAS, COMBOS E PETISCOS</div></div>
+        <div class="arrow">›</div>
+      </section>
+    </a>
+
+    <section class="birthday" id="sobre">
+      <div class="birthday-copy">
+        <div class="eyebrow">COMEMORE SEU</div>
+        <h2>ANIVERSÁRIO</h2>
+        <p>Reserve seu aniversário no Dôha e viva uma experiência inesquecível!</p>
+      </div>
+      <div class="birthday-art">
+        <a class="btn birthday-btn" href="https://api.whatsapp.com/send/?phone=5511966415144&text=Ol%C3%A1+Quero+Mais%21+informa%C3%A7%C3%B5es+sobre+Reservas.&type=phone_number&app_absent=0" target="_blank" rel="noopener">FALE CONOSCO ◔</a>
+      </div>
+    </section>
+
+    <section class="location-section" id="localizacao">
+      <div class="location-heading">
+        <div class="eyebrow">VENHA NOS VISITAR</div>
+        <h2>Nossa <span>Localização</span></h2>
+      </div>
+      <div class="location-grid">
+        <div class="map-card">
+          <iframe
+            title="Mapa Dôha Gastro Bar"
+            src="https://www.google.com/maps?q=Av.%20Washington%20Lu%C3%ADs%2C%20846%20-%20Santo%20Amaro%2C%20S%C3%A3o%20Paulo%20-%20SP%2C%2004662-001&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+        <div class="contact-list">
+          <article class="contact-card">
+            <div class="contact-icon">⌖</div>
+            <div>
+              <h3>Endereço</h3>
+              <p><strong>Dôha Gastro Bar</strong><br>Av. Washington Luís, 846 - Santo Amaro, São Paulo - SP, 04662-001</p>
+              <div class="contact-links">
+                <a class="contact-link" href="https://maps.app.goo.gl/Qfiza5btkvC12eDt9" target="_blank" rel="noopener">GOOGLE MAPS ↗</a>
+                <a class="contact-link" href="https://www.waze.com/ul?q=Av.%20Washington%20Lu%C3%ADs%2C%20846%2C%20S%C3%A3o%20Paulo%20SP&navigate=yes" target="_blank" rel="noopener">WAZE ↗</a>
+              </div>
+            </div>
+          </article>
+          <article class="contact-card">
+            <div class="contact-icon">◔</div>
+            <div>
+              <h3>WhatsApp</h3>
+              <p>+55 11 96641-5144</p>
+              <a class="contact-link" href="https://api.whatsapp.com/send/?phone=5511966415144&text=Ol%C3%A1+Quero+Mais%21+informa%C3%A7%C3%B5es+sobre+Reservas.&type=phone_number&app_absent=0" target="_blank" rel="noopener">CLIQUE AQUI ↗</a>
+            </div>
+          </article>
+          <article class="contact-card">
+            <div class="contact-icon">◎</div>
+            <div>
+              <h3>Instagram</h3>
+              <p>@dohagastrobar</p>
+              <a class="contact-link" href="https://www.instagram.com/dohagastrobar/" target="_blank" rel="noopener">SIGA AGORA ↗</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<footer>© 2026 Dôha Gastro Bar.</footer>
+
+<script>
+const DEFAULT_EVENTS = [
+  {title:"FEIJOADA / OPEN BAR / BRAGGA / ILUAIE", date:"15/08/2026 13:00", price:"R$ 20,00", lot:"Lote 1", image:"flyer-1.jpg", link:"#"},
+  {title:"RAMON RAMOS / CHURRASCADA / OPEN BAR", date:"16/08/2026 13:00", price:"R$ 25,00", lot:"Lote 2", image:"flyer-2.jpg", link:"#"},
+  {title:"RESENHA DE CRENTE / MARCADOS", date:"21/08/2026 18:00", price:"R$ 40,00", lot:"Lote 3", image:"flyer-3.jpg", link:"#"}
+];
+function getEvents(){
+  try{
+    const x=JSON.parse(localStorage.getItem("club_events"));
+    if(Array.isArray(x)&&x.length) return x.slice(0,3).map((e,i)=>({...DEFAULT_EVENTS[i],...e}));
+  }catch(e){}
+  return DEFAULT_EVENTS;
+}
+function renderEvents(){
+  document.getElementById("eventsGrid").innerHTML=getEvents().map(e=>`
+    <article class="event">
+      <img src="${e.image||"flyer-1.jpg"}" alt="${e.title||"Evento"}">
+      <div class="event-content">
+        <h3>${e.title||""}</h3>
+        <div class="event-meta">
+          <div class="meta-line"><div class="meta-left"><span class="gold-icon">◫</span>${e.date||""}</div></div>
+          <div class="meta-line">
+            <div class="meta-left"><span class="gold-icon">◉</span>Ingressos a partir de ${e.price||""}</div>
+            ${e.lot?`<span class="lot-pill">${e.lot}</span>`:""}
+          </div>
+        </div>
+        <a class="btn" href="${e.link||"#"}" ${/^https?:/i.test(e.link||"")?'target="_blank" rel="noopener"':""}>COMPRAR INGRESSO</a>
+      </div>
+    </article>`).join("");
+}
+renderEvents();
+function applySiteLogo(){
+  async function loadSiteLogo(){
+    const el=document.getElementById("siteLogo");
+    const local=localStorage.getItem("club_site_logo");if(local)el.src=local;
+    try{const req=indexedDB.open("doha_site_db",1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains("assets"))db.createObjectStore("assets")};req.onsuccess=()=>{const db=req.result;const tx=db.transaction("assets","readonly");const get=tx.objectStore("assets").get("site_logo");get.onsuccess=()=>{if(get.result)el.src=get.result}}}catch(e){}
+  }
+  loadSiteLogo();
+}
+function setupEventNavigation(){
+  const grid=document.getElementById("eventsGrid");
+  const prev=document.getElementById("eventPrev"), next=document.getElementById("eventNext");
+  const step=()=>grid.clientWidth;
+  prev.addEventListener("click",()=>grid.scrollBy({left:-step(),behavior:"smooth"}));
+  next.addEventListener("click",()=>grid.scrollBy({left:step(),behavior:"smooth"}));
+}
+applySiteLogo();
+setupEventNavigation();
+document.querySelectorAll('.links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.links').classList.remove('open')));
+
+</script>
+</body>
+</html>

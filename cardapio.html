@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cardápio | Dôha Gastro Bar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold1:#fff0a8;--gold2:#f2c24d;--gold3:#c58b16;--gold4:#72500b;--glow:0 0 10px rgba(242,194,77,.27),0 0 24px rgba(242,194,77,.10),0 0 42px rgba(197,139,22,.05)}
+*{box-sizing:border-box}body{margin:0;color:#fff;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 12% 8%,rgba(241,184,45,.07),transparent 20%),linear-gradient(135deg,rgba(255,190,40,.03) 0 1px,transparent 1px 52px),#020202;background-size:auto,70px 70px,auto}
+a{text-decoration:none;color:inherit}.container{width:min(1180px,calc(100% - 34px));margin:auto}
+header{text-align:center;padding:24px 0 12px}.site-logo-img{width:min(250px,62vw);height:auto;display:block;margin:auto;filter:drop-shadow(0 0 8px rgba(242,194,77,.16))}.crown{color:var(--gold2);font-size:30px}.logo{font-weight:900;font-size:50px;letter-spacing:-3px}.logo span{background:linear-gradient(180deg,#fff,#ededed 62%,#bdbdbd);-webkit-background-clip:text;background-clip:text;color:transparent}.sub{font-size:11px;font-weight:700;letter-spacing:5px;color:var(--gold2)}
+.nav{position:sticky;top:0;z-index:20;background:rgba(2,2,2,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(242,194,77,.16)}.nav-inner{min-height:58px;display:flex;align-items:center;justify-content:space-between}.back,.admin-link{font-size:11px;font-weight:700;color:var(--gold2);border:1px solid var(--gold4);padding:10px 13px;border-radius:7px;background:#080808;box-shadow:var(--glow)}
+.hero{padding:40px 0 18px;text-align:center}.hero .small{font-size:17px;font-weight:700;letter-spacing:2px}.hero h1{margin:4px 0 10px;font-size:58px;font-weight:900;letter-spacing:-2px;background:linear-gradient(180deg,var(--gold1),var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{font-weight:300;color:#aaa}
+.search-wrap{max-width:780px;margin:20px auto 18px;position:relative}.search{width:100%;height:48px;border-radius:10px;border:1px solid var(--gold4);background:#080808;color:#fff;padding:0 18px 0 46px;outline:0;font:300 14px Inter;box-shadow:var(--glow)}.search-icon{position:absolute;left:17px;top:50%;transform:translateY(-50%);color:var(--gold2)}
+.categories{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin:18px 0 30px}.cat{border:1px solid var(--gold4);background:#080808;color:#ddd;border-radius:999px;padding:9px 14px;font:700 11px Inter;cursor:pointer}.cat.active,.cat:hover{color:#111;background:linear-gradient(180deg,var(--gold1),var(--gold2),var(--gold3));box-shadow:var(--glow)}
+.section-title{margin:34px 0 16px;font-size:26px;font-weight:900;text-transform:uppercase}.section-title span{background:linear-gradient(180deg,var(--gold1),var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-bottom:30px}.product{overflow:hidden;border:1px solid rgba(197,139,22,.70);border-radius:12px;background:linear-gradient(180deg,#0d0d0d,#060606);box-shadow:var(--glow);transition:box-shadow .25s ease,border-color .25s ease}.product:hover{border-color:rgba(242,194,77,.80);box-shadow:0 0 13px rgba(242,194,77,.28),0 0 30px rgba(197,139,22,.10)}.visual{aspect-ratio:1/1;min-height:0;display:grid;place-items:center;position:relative;background:radial-gradient(circle at 50% 55%,rgba(242,194,77,.16),transparent 34%),#0b0b0b;border-bottom:1px solid rgba(242,194,77,.17)}.visual img{width:100%;height:100%;object-fit:contain;padding:14px}.visual .emoji{font-size:92px}.badge{position:absolute;left:12px;top:12px;padding:6px 9px;border-radius:999px;background:#090909;border:1px solid var(--gold4);color:var(--gold2);font-size:9px;font-weight:700}
+.content{padding:16px}.content h3{margin:0 0 7px;font-size:16px;font-weight:900}.desc{font-size:12px;font-weight:300;color:#aaa;line-height:1.5;min-height:36px}.price-row{display:flex;align-items:end;justify-content:space-between;margin-top:14px}.price small{display:block;font-size:9px;color:#858585}.price strong{font-size:20px;font-weight:900;background:linear-gradient(180deg,var(--gold1),var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent}.unit{font-size:10px;color:#888}.empty{text-align:center;color:#888;padding:44px 0;display:none}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.logo{font-size:38px}.hero h1{font-size:43px}.grid{grid-template-columns:repeat(2,1fr);gap:10px}.content{padding:12px}.content h3{font-size:14px}.desc{font-size:11px}.price strong{font-size:17px}.categories{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}.cat{white-space:nowrap}}
+
+
+/* ===== MOBILE PREMIUM ===== */
+@media(max-width:600px){
+  body{overflow-x:hidden}
+  .container{width:min(100% - 22px,1180px)}
+  header{padding:17px 0 10px}.site-logo-img{width:min(205px,60vw)}
+  .nav{backdrop-filter:blur(16px)}.nav-inner{min-height:54px;gap:10px}.back,.admin-link{font-size:9px;padding:10px 11px;border-radius:9px;white-space:nowrap}
+  .hero{padding:28px 0 10px}.hero .small{font-size:11px;letter-spacing:2.8px}.hero h1{font-size:39px;letter-spacing:-1.6px;margin:4px 0 7px}.hero p{font-size:11px;line-height:1.5;margin:0 auto;max-width:290px}
+  .search-wrap{margin:16px auto 13px}.search{height:46px;border-radius:12px;font-size:12px;padding-left:43px}.search-icon{left:15px}
+  .categories{margin:13px -11px 24px;padding:0 11px 4px;gap:7px;scrollbar-width:none;scroll-snap-type:x proximity}.categories::-webkit-scrollbar{display:none}.cat{font-size:9px;padding:9px 12px;scroll-snap-align:start}
+  .section-title{font-size:20px;margin:26px 0 14px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding-bottom:28px}
+  .product{border-radius:13px;min-width:0}.visual{aspect-ratio:1/1}.visual img{padding:8px}.visual .emoji{font-size:58px}.badge{left:7px;top:7px;font-size:7px;padding:5px 7px}
+  .content{padding:10px}.content h3{font-size:12px;line-height:1.25;margin-bottom:5px;min-height:30px}.desc{font-size:9px;line-height:1.4;min-height:38px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.price-row{margin-top:10px;display:block}.price small{font-size:7px}.price strong{font-size:15px;line-height:1.15}.unit{display:block;margin-top:4px;font-size:8px}
+}
+@media(max-width:370px){
+  .container{width:min(100% - 16px,1180px)}.grid{gap:7px}.content{padding:9px}.content h3{font-size:11px}.price strong{font-size:14px}.back,.admin-link{font-size:8px;padding:9px}
+}
+
+</style>
+</head>
+<body>
+<header><img id="siteLogo" class="site-logo-img" src="logo-doha.png" alt="Dôha Gastro Bar"></header>
+<div class="nav"><div class="container nav-inner"><a class="back" href="index.html">← VOLTAR</a><a class="admin-link" href="admin.html">ÁREA ADMIN</a></div></div>
+<main class="container">
+<section class="hero"><div class="small">CONHEÇA NOSSO</div><h1>CARDÁPIO</h1><p>Bebidas, combos, drinks e petiscos da casa.</p></section>
+<div class="search-wrap"><span class="search-icon">⌕</span><input id="search" class="search" placeholder="Buscar no cardápio..."></div>
+<div id="categories" class="categories"></div>
+<h2 class="section-title"><span>DESTAQUES</span> DA CASA</h2>
+<section id="grid" class="grid"></section><div id="empty" class="empty">Nenhum produto encontrado.</div>
+</main>
+<script>
+const DEFAULT_CATEGORIES=["Baldes Cervejas","Cervejas / Chopp / Vinho","Combos","Espumantes","Sem Álcool","Drinks","Petiscos"];
+const DEFAULT_PRODUCTS=[
+ {name:"Balde Heineken",categories:["Baldes Cervejas"],featured:true,desc:"Balde com 10 unidades bem geladas.",price:"R$ 140,00",unit:"Unidade R$ 15,00",icon:"🍺",image:"",available:true},
+ {name:"Gin Tropical",categories:["Drinks"],featured:true,desc:"Gin, frutas cítricas e energético.",price:"R$ 32,00",unit:"",icon:"🍹",image:"",available:true},
+ {name:"Combo Whisky",categories:["Combos"],featured:false,desc:"Whisky + energético + gelo.",price:"R$ 210,00",unit:"",icon:"🥃",image:"",available:true}
+];
+function getCategories(){try{const x=JSON.parse(localStorage.getItem("club_categories"));return Array.isArray(x)&&x.length?x:DEFAULT_CATEGORIES}catch(e){return DEFAULT_CATEGORIES}}
+function getProducts(){try{
+  const x=JSON.parse(localStorage.getItem("club_products"));
+  if(!Array.isArray(x)||!x.length)return DEFAULT_PRODUCTS;
+  return x.map(p=>({
+    ...p,
+    categories:Array.isArray(p.categories)?p.categories:(p.cat?[p.cat]:[]),
+    featured:!!p.featured,
+    available:p.available!==false
+  }));
+}catch(e){return DEFAULT_PRODUCTS}}
+let activeCat="Mais pedidos";
+function renderCategories(){
+  const cats=["Mais pedidos",...getCategories()];
+  document.getElementById("categories").innerHTML=cats.map(c=>`<button class="cat ${c===activeCat?"active":""}" data-cat="${c}">${c}</button>`).join("");
+  document.querySelectorAll(".cat").forEach(btn=>btn.addEventListener("click",()=>{activeCat=btn.dataset.cat;render()}));
+}
+function render(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  const products=getProducts();
+  renderCategories();
+  const filtered=products.filter(p=>{
+    if(p.available===false)return false;
+    const catOk=activeCat==="Mais pedidos"?p.featured:(p.categories||[]).includes(activeCat);
+    const text=(p.name+" "+(p.desc||"")+" "+(p.categories||[]).join(" ")).toLowerCase();
+    return catOk && text.includes(q);
+  });
+  document.getElementById("grid").innerHTML=filtered.map(p=>`
+    <article class="product">
+      <div class="visual">
+        ${p.featured?'<div class="badge">MAIS PEDIDO</div>':""}
+        ${p.image?`<img src="${p.image}" alt="${p.name}">`:`<div class="emoji">${p.icon||"🍾"}</div>`}
+      </div>
+      <div class="content">
+        <h3>${p.name}</h3>
+        <div class="desc">${p.desc||""}</div>
+        <div class="price-row"><div class="price"><small>A PARTIR DE</small><strong>${p.price||""}</strong></div><div class="unit">${p.unit||""}</div></div>
+      </div>
+    </article>`).join("");
+  document.getElementById("empty").style.display=filtered.length?"none":"block";
+}
+document.getElementById("search").addEventListener("input",render);
+async function loadSiteLogo(){const el=document.getElementById("siteLogo");const local=localStorage.getItem("club_site_logo");if(local)el.src=local;try{const req=indexedDB.open("doha_site_db",1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains("assets"))db.createObjectStore("assets")};req.onsuccess=()=>{const db=req.result;const tx=db.transaction("assets","readonly");const get=tx.objectStore("assets").get("site_logo");get.onsuccess=()=>{if(get.result)el.src=get.result}}}catch(e){}}
+loadSiteLogo();
+render();
+</script>
+</body></html>
